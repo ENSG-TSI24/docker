@@ -34,15 +34,33 @@ services:
       replicas: 0
     secrets:
       - xtrabackup_password
+  nextcloud:
+    image: nextcloud
+    environment:
+      - MYSQL_PASSWORD=your_password
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud_user
+      - MYSQL_HOST=galera_seed
+    networks:
+      - galera_network
+    volumes:
+      - nextcloud_data:/var/www/html
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
 
 volumes:
   mysql-data:
     name: '{{.Service.Name}}-{{.Task.Slot}}-data'
     driver: local
-
+  nextcloud_data:
+    driver: local
+    
 networks:
   galera_network:
     driver: overlay
+    external: true
 
 secrets:
   xtrabackup_password:
