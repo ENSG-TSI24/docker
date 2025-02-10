@@ -1,32 +1,53 @@
-volumes:
-  nextcloud:
-  db:
-
+version: '3.4'
 
 services:
-  db:
-    image: mariadb:10.6
-    restart: always
-    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
-    volumes:
-      - db:/var/lib/mysql
+  seed:
+    image: colinmollenhour/mariadb-galera-swarm
     environment:
-      - MYSQL_ROOT_PASSWORD=nextcloud
-      - MYSQL_PASSWORD=nextcloud
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - XTRABACKUP_PASSWORD_FILE=/run/secrets/xtrabackup_password
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+      - MYSQL_DATABASE=database
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - NODE_ADDRESS=^10.0.*.*
+    networks:
+      - galera_network
+    command: seed
+    volumes:
+      - mysql-data:/var/lib/mysql
+    secrets:
+      - xtrabackup_password
+      - mysql_password
+      - mysql_root_password
+  node:
+    image: colinmollenhour/mariadb-galera-swarm
+    environment:
+      - XTRABACKUP_PASSWORD_FILE=/run/secrets/xtrabackup_password
+      - NODE_ADDRESS=^10.0.*.*
+      - HEALTHY_WHILE_BOOTING=1
+    networks:
+      - galera_network
+    command: node tasks.seed,tasks.node
+    volumes:
+      - mysql-data:/var/lib/mysql
+    deploy:
+      replicas: 0
+    secrets:
+      - xtrabackup_password
 
-  app:
-    image: nextcloud
-    restart: always
-    ports:
-      - 8080:80
-    links:
-      - db
-    volumes:
-      - nextcloud:/var/www/html
-    environment:
-      - MYSQL_PASSWORD=nextcloud
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_HOST=db
+volumes:
+  mysql-data:
+    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+    driver: local
+
+networks:
+  galera_network:
+    driver: overlay
+
+secrets:
+  xtrabackup_password:
+    file: .secrets/xtrabackup_password
+  mysql_password:
+    file: .secrets/mysql_password
+  mysql_root_password:
+    file: .secrets/mysql_root_password
