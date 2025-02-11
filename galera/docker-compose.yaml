@@ -59,7 +59,7 @@ services:
     volumes:
       - prometheus_data:/prometheus_data
     networks:
-      - cloud
+      - galera_network
     configs:
       - source: geco-prometheus
         target: /etc/prometheus/prometheus.yml # On remonte la config crée plus haut dans le container.
@@ -77,14 +77,15 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
-      - cloud
+      - galera_network
     depends_on:
       - prometheus
   exporter:
     image: xperimental/nextcloud-exporter:latest
     ports:
       - 8080:8080
-    networks: galera-network
+    networks:
+      - galera-network
 
 volumes:
   mysql-data:
