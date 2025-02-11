@@ -19,7 +19,6 @@ services:
       - xtrabackup_password
       - mysql_password
       - mysql_root_password
-
   node:
     image: colinmollenhour/mariadb-galera-swarm
     environment:
@@ -32,37 +31,23 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     deploy:
-      replicas: 0
+      replicas: 1
     secrets:
       - xtrabackup_password
-
   nextcloud:
     image: nextcloud
     environment:
-      - MYSQL_PASSWORD=your_password
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud_user
-      - MYSQL_HOST=galera_seed
+      - MYSQL_PASSWORD=docker
+      - MYSQL_DATABASE=database
+      - MYSQL_USER=user
+      - MYSQL_HOST=node
     networks:
       - galera_network
     volumes:
       - nextcloud_data:/var/www/html
-    expose:
-      - "80"  # Expose only internally within the network
-    restart: unless-stopped
-
-  nginx:
-    image: nginx
-    container_name: nginx-server
-    restart: always
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf  # Ensure you have the correct path to your nginx.conf
-      - nextcloud_data:/var/www/html
-    networks:
-      - galera_network
+      - "8080:80"
+    restart: unless-stopped
 
 volumes:
   mysql-data:
@@ -74,7 +59,6 @@ volumes:
 networks:
   galera_network:
     driver: overlay
-    external: true
 
 secrets:
   xtrabackup_password:
