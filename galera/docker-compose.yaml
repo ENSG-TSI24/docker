@@ -48,6 +48,43 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml #specification du fichier de config
+      - --storage.tsdb.path=/prometheus_data #le chemin ou l'on store les data
+      - --storage.tsdb.retention.time=90d #durée de retention des datas
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus_data:/prometheus_data
+    networks:
+      - cloud
+    configs:
+      - source: geco-prometheus
+        target: /etc/prometheus/prometheus.yml # On remonte la config crée plus haut dans le container.
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - cloud
+    depends_on:
+      - prometheus
+  exporter:
+    image: xperimental/nextcloud-exporter:latest
+    ports:
+      - 8080:8080
+    networks: galera-network
 
 volumes:
   mysql-data:
