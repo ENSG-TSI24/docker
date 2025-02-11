@@ -1,5 +1,32 @@
 version: '3.4'
 
+volumes:
+  mysql-data:
+    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+    driver: local
+  nextcloud_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  nextcloud_exporter_data:
+    driver: local
+
+networks:
+  galera_network:
+    driver: overlay
+
+secrets:
+  xtrabackup_password:
+    file: .secrets/xtrabackup_password
+  mysql_password:
+    file: .secrets/mysql_password
+  mysql_root_password:
+    file: .secrets/mysql_root_password
+
+configs:
+  geco-prometheus:
+    file: ./prometheus_data/prometheus.yml
+
 services:
   seed:
     image: colinmollenhour/mariadb-galera-swarm
@@ -82,39 +109,15 @@ services:
   exporter:
     image: xperimental/nextcloud-exporter:latest
     environment:
-      - NEXTCLOUD_SERVERINFO_URL=http://nextcloud/ocs/v2.php/apps/serverinfo/api/v1/info
+      - NEXTCLOUD_SERVER=http://nextcloud:80/ocs/v2.php/apps/serverinfo/api/v1/info
+      - NEXTCLOUD_USERNAME=admin
+      - NEXTCLOUD_PASSWORD=admin
+      - NEXTCLOUD_LISTEN_ADDRESS=:9205
     ports:
-      - 8081:8081
+      - 9205:9205
     volumes:
       - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
     networks:
       - galera_network
     depends_on:
       - prometheus
-
-volumes:
-  mysql-data:
-    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
-    driver: local
-  nextcloud_data:
-    driver: local
-  prometheus_data:
-    driver: local
-  nextcloud_exporter_data:
-    driver: local
-
-networks:
-  galera_network:
-    driver: overlay
-
-secrets:
-  xtrabackup_password:
-    file: .secrets/xtrabackup_password
-  mysql_password:
-    file: .secrets/mysql_password
-  mysql_root_password:
-    file: .secrets/mysql_root_password
-
-configs:
-  geco-prometheus:
-    file: ./prometheus_data/prometheus.yml

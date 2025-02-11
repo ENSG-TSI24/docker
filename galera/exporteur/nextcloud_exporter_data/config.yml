@@ -1,8 +1,9 @@
-# required
-server: "https://nextcloud:80"
-# required for token authentication
-authToken: "A_Generer"
-# optional
-listenAddress: ":9205"
-timeout: "5s"
-tlsSkipVerify: false
+# # required
+# server: "https://nextcloud:80"
+# # required for token authentication
+# username: "admin"
+# password: "admin"
+# # optional
+# listenAddress: "nextcloud:80"
+# timeout: "5s"
+# tlsSkipVerify: false
