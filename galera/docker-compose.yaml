@@ -66,7 +66,7 @@ services:
       - MYSQL_PASSWORD=docker
       - MYSQL_DATABASE=database
       - MYSQL_USER=user
-      - MYSQL_HOST=node
+      - MYSQL_HOST=seed
     networks:
       - galera_network
     volumes:
