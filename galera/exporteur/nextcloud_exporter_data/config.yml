@@ -1,9 +1,6 @@
-# # required
-# server: "https://nextcloud:80"
-# # required for token authentication
-# username: "admin"
-# password: "admin"
-# # optional
-# listenAddress: "nextcloud:80"
-# timeout: "5s"
-# tlsSkipVerify: false
+server: "http://nextcloud/ocs/v2.php/apps/serverinfo/api/v1/info"
+username: "admin"
+password: "admin"
+listenAddress: ":9205"
+timeout: "5s"
+tlsSkipVerify: false
