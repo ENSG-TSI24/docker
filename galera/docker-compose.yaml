@@ -81,8 +81,12 @@ services:
       - prometheus
   exporter:
     image: xperimental/nextcloud-exporter:latest
+    environment:
+      - NEXTCLOUD_SERVERINFO_URL=http://nextcloud/ocs/v2.php/apps/serverinfo/api/v1/info
     ports:
       - 8081:8081
+    volumes:
+      - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
     networks:
       - galera_network
     depends_on:
@@ -95,6 +99,8 @@ volumes:
   nextcloud_data:
     driver: local
   prometheus_data:
+    driver: local
+  nextcloud_exporter_data:
     driver: local
 
 networks:

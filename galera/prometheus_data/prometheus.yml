@@ -32,3 +32,13 @@ scrape_configs:
 
     static_configs:
       - targets: ["host.docker.internal:9323"]
+  - job_name: 'nextcloud-test'
+    metrics_path: '/'
+    scrape_interval: 5s
+    scheme: https
+    basic_auth:
+      username: "admin"
+      password: "admin"
+    static_configs:
+      - targets: 
+        - 'http://exporter:8081'
