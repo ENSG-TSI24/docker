@@ -1,28 +1,6 @@
 version: '3.4'
+
 services:
-  app:
-    container_name: app-server
-    image: nextcloud:fpm
-    restart: always
-    expose:
-      - '80'
-      - '9000'
-    volumes:
-      - app_data:/var/www/html
-  onlyoffice-document-server:
-    container_name: onlyoffice-document-server
-    image: onlyoffice/documentserver:latest
-    restart: always
-    environment:
-      - JWT_SECRET=secret
-    expose:
-      - '80'
-      - '443'
-    volumes:
-      - document_data:/var/www/onlyoffice/Data
-      - document_log:/var/log/onlyoffice
-    networks:
-      - galera_network
   seed:
     image: colinmollenhour/mariadb-galera-swarm
     environment:
@@ -72,9 +50,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  document_data:
-  document_log:
-  app_data:
   mysql-data:
     name: '{{.Service.Name}}-{{.Task.Slot}}-data'
     driver: local
@@ -92,5 +67,3 @@ secrets:
     file: .secrets/mysql_password
   mysql_root_password:
     file: .secrets/mysql_root_password
-  
-  
