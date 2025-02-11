@@ -50,13 +50,13 @@ services:
   prometheus:
     image: prom/prometheus:latest
     command:
-      - --config.file=/etc/prometheus/prometheus.yml #specification du fichier de config
-      - --storage.tsdb.path=/prometheus_data #le chemin ou l'on store les data
-      - --storage.tsdb.retention.time=90d #durée de retention des datas
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus_data
+      - --storage.tsdb.retention.time=90d
     ports:
       - 9090:9090
     volumes:
-      - /prometheus_data:/prometheus_data
+      - prometheus_data:/prometheus
     networks:
       - galera_network
     configs:
@@ -82,9 +82,11 @@ services:
   exporter:
     image: xperimental/nextcloud-exporter:latest
     ports:
-      - 8080:8080
+      - 8081:8081
     networks:
       - galera_network
+    depends_on:
+      - prometheus
 
 volumes:
   mysql-data:
