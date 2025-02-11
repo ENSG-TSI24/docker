@@ -94,6 +94,8 @@ volumes:
     driver: local
   nextcloud_data:
     driver: local
+  prometheus_data:
+    driver: local
 
 networks:
   galera_network:
