@@ -47,7 +47,6 @@ services:
       - nextcloud_data:/var/www/html
     ports:
       - "8080:80"
-    restart: unless-stopped
   prometheus:
     image: prom/prometheus:latest
     command:
