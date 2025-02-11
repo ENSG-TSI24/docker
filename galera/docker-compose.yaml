@@ -56,7 +56,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - prometheus_data:/prometheus_data
+      - /prometheus_data:/prometheus_data
     networks:
       - galera_network
     configs:
@@ -71,7 +71,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - grafana_data:/var/lib/grafana
+      - /grafana_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -84,7 +84,7 @@ services:
     ports:
       - 8080:8080
     networks:
-      - galera-network
+      - galera_network
 
 volumes:
   mysql-data:
@@ -104,3 +104,7 @@ secrets:
     file: .secrets/mysql_password
   mysql_root_password:
     file: .secrets/mysql_root_password
+
+configs:
+  geco-prometheus:
+    file: ./prometheus_data/prometheus.yml
