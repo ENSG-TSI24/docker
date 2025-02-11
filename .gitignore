@@ -1,2 +1,4 @@
-galera/prometheus_data
-grafana_data
+galera/prometheus_data/*
+!galera/prometheus_data/prometheus.yml
+galera/grafana_data/*
+galera/grafana_data/*
