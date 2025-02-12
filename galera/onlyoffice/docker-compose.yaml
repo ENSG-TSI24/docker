@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  onlyoffice-document-server:
+    container_name: onlyoffice-document-server
+    image: onlyoffice/documentserver:latest
+    restart: always
+    environment:
+      - JWT_SECRET=secret
+    ports:
+      - "8081:80"
+    volumes:
+      - document_data:/var/www/onlyoffice/Data
+      - document_log:/var/log/onlyoffice
+    networks:
+      - frontend_network
+
+volumes:
+  document_data:
+  document_log:
+
+
+networks:
+  frontend_network:
+    driver: overlay
