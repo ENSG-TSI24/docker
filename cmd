@@ -16,7 +16,7 @@ docker service ls
 docker service scale galera_node=2
 
 pour tuer :
-docker services ls
+docker service ls
 docker service rm yi58xa0fnznw yxr7c92zye43 cytfiedt5igo
 
 
