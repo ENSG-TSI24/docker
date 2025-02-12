@@ -1,24 +1,17 @@
 version: '3.4'
-
 services:
-  nextcloud:
+  app:
     container_name: app-server
     image: nextcloud
     restart: always
-    ports:
-      - "8080:80"
+    expose:
+      - '80'
+      - '9000'
     volumes:
-      - nextcloud_data:/var/www/html
+      - app_data:/var/www/html
     environment:
       - NEXTCLOUD_ADMIN_USER=admin
       - NEXTCLOUD_ADMIN_PASSWORD=formation20242025
-      - MYSQL_PASSWORD=docker
-      - MYSQL_DATABASE=database
-      - MYSQL_USER=user
-      - MYSQL_HOST=seed
-    networks:
-      - frontend_network
-      - backend_network
     
   onlyoffice-document-server:
     container_name: onlyoffice-document-server
@@ -33,8 +26,7 @@ services:
       - document_data:/var/www/onlyoffice/Data
       - document_log:/var/log/onlyoffice
     networks:
-      - frontend_network
-
+      - galera_network
   seed:
     image: colinmollenhour/mariadb-galera-swarm
     environment:
@@ -45,7 +37,7 @@ services:
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
       - NODE_ADDRESS=^10.0.*.*
     networks:
-      - backend_network
+      - galera_network
     command: seed
     volumes:
       - mysql-data:/var/lib/mysql
@@ -53,7 +45,6 @@ services:
       - xtrabackup_password
       - mysql_password
       - mysql_root_password
-
   node:
     image: colinmollenhour/mariadb-galera-swarm
     environment:
@@ -61,28 +52,41 @@ services:
       - NODE_ADDRESS=^10.0.*.*
       - HEALTHY_WHILE_BOOTING=1
     networks:
-      - backend_network
+      - galera_network
     command: node tasks.seed,tasks.node
     volumes:
       - mysql-data:/var/lib/mysql
     deploy:
-      replicas: 0
+      replicas: 1
     secrets:
       - xtrabackup_password
+  nextcloud:
+    image: nextcloud
+    environment:
+      - MYSQL_PASSWORD=docker
+      - MYSQL_DATABASE=database
+      - MYSQL_USER=user
+      - MYSQL_HOST=node
+    networks:
+      - galera_network
+    volumes:
+      - nextcloud_data:/var/www/html
+    ports:
+      - "8080:80"
+    restart: unless-stopped
 
 volumes:
   document_data:
   document_log:
-  nextcloud_data:
-    driver: local
+  app_data:
   mysql-data:
     name: '{{.Service.Name}}-{{.Task.Slot}}-data'
     driver: local
+  nextcloud_data:
+    driver: local
 
 networks:
-  frontend_network:
-    driver: overlay
-  backend_network:
+  galera_network:
     driver: overlay
 
 secrets:
@@ -92,3 +96,5 @@ secrets:
     file: .secrets/mysql_password
   mysql_root_password:
     file: .secrets/mysql_root_password
+  
+  
