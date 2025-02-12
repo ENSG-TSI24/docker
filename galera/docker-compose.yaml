@@ -36,6 +36,45 @@ configs:
     file: ./prometheus_data/prometheus.yml
 
 services:
+  nextcloud:
+    container_name: app-server
+    image: nextcloud
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - nextcloud_data:/var/www/html
+    environment:
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=formation20242025
+      - MYSQL_PASSWORD=docker
+      - MYSQL_DATABASE=database
+      - MYSQL_USER=user
+      - MYSQL_HOST=seed
+    networks:
+      - frontend_network
+      - backend_network
+      - traefik_network
+    labels:
+      - "traefik.http.routers.nextcloud.rule=Host(`NC.ensg.duckdns.org.127.0.0.1.nip.io`)"
+
+  onlyoffice-document-server:
+    container_name: onlyoffice-document-server
+    image: onlyoffice/documentserver:latest
+    restart: always
+    environment:
+      - JWT_SECRET=secret
+    ports:
+      - "8081:80"
+    volumes:
+      - document_data:/var/www/onlyoffice/Data
+      - document_log:/var/log/onlyoffice
+    networks:
+      - frontend_network
+      - traefik_network
+    labels:
+      - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg.duckdns.org.127.0.0.1.nip.io`)"
+
   seed:
     image: colinmollenhour/mariadb-galera-swarm
     environment:
@@ -46,14 +85,18 @@ services:
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
       - NODE_ADDRESS=^10.0.*.*
     networks:
-      - network
+      - backend_network
     command: seed
     volumes:
       - mysql-data:/var/lib/mysql
+
+    deploy:
+      replicas: 1
     secrets:
       - xtrabackup_password
       - mysql_password
       - mysql_root_password
+
   node:
     image: colinmollenhour/mariadb-galera-swarm
     environment:
@@ -61,7 +104,7 @@ services:
       - NODE_ADDRESS=^10.0.*.*
       - HEALTHY_WHILE_BOOTING=1
     networks:
-      - network
+      - backend_network
     command: node tasks.seed,tasks.node
     volumes:
       - mysql-data:/var/lib/mysql
@@ -69,89 +112,32 @@ services:
       replicas: 1
     secrets:
       - xtrabackup_password
-  nextcloud:
-    image: nextcloud
-    environment:
-      - MYSQL_PASSWORD=docker
-      - MYSQL_DATABASE=database
-      - MYSQL_USER=user
-      - MYSQL_HOST=node
-      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud
-    networks:
-      - network
-      - nextcloud
-    volumes:
-      - nextcloud_data:/var/www/html
-    ports:
-      - "8080:80"
-  prometheus:
-    image: prom/prometheus:latest
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus_data
-      - --storage.tsdb.retention.time=90d
-    ports:
-      - 9090:9090
-    volumes:
-      - ./prometheus_data:/prometheus_data
-    networks:
-      - grafana
-      - node
-      - nextcloud
-      - cadvisor
-    configs:
-      - source: geco-prometheus
-        target: /etc/prometheus/prometheus.yml
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-  exporter-cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    ports:
-      - 9092:8080
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    depends_on:
-      - redis
-    networks:
-      - cadvisor
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - 3000:3000
-    volumes:
-      - ./grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    networks:
-      - grafana
-    depends_on:
-      - prometheus
-  exporter-nextcloud:
-    image: xperimental/nextcloud-exporter:latest
-    environment:
-      - NEXTCLOUD_SERVER=http://nextcloud:80
-      - NEXTCLOUD_AUTH_TOKEN=exporter_token
-      - NEXTCLOUD_LISTEN_ADDRESS=:9205
-    ports:
-      - 9205:9205
-    # volumes:
-    #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
-    networks:
-      - nextcloud
-      - network
-    depends_on:
-      - prometheus
-  exporter-node:
-    image: prom/node-exporter:latest
-    ports:
-      - "9100:9100"
-    networks:
-      - node
-    depends_on:
-      - prometheus
+
+volumes:
+  document_data:
+  document_log:
+  nextcloud_data:
+    driver: local
+  mysql-data:
+    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+    driver: local
+
+networks:
+  frontend_network:
+    driver: overlay
+  backend_network:
+    driver: overlay
+  traefik_network:
+    external: true
+
+secrets:
+  xtrabackup_password:
+    file: .secrets/xtrabackup_password
+  mysql_password:
+    file: .secrets/mysql_password
+  mysql_root_password:
+    file: .secrets/mysql_root_password
+
+configs:
+  geco-prometheus:
+    file: ./prometheus_data/prometheus.yml
