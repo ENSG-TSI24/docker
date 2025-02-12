@@ -19,16 +19,15 @@ services:
     networks:
       - frontend_network
       - backend_network
-    
+
   onlyoffice-document-server:
     container_name: onlyoffice-document-server
     image: onlyoffice/documentserver:latest
     restart: always
     environment:
       - JWT_SECRET=secret
-    expose:
-      - '80'
-      - '443'
+    ports:
+      - "8081:80"
     volumes:
       - document_data:/var/www/onlyoffice/Data
       - document_log:/var/log/onlyoffice
@@ -49,6 +48,9 @@ services:
     command: seed
     volumes:
       - mysql-data:/var/lib/mysql
+
+    deploy:
+      replicas: 0
     secrets:
       - xtrabackup_password
       - mysql_password
@@ -66,7 +68,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     deploy:
-      replicas: 0
+      replicas: 3
     secrets:
       - xtrabackup_password
 
