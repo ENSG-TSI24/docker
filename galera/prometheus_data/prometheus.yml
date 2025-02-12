@@ -37,11 +37,11 @@ scrape_configs:
     scrape_interval: 10s
     scheme: http
     static_configs:
-      - targets: ['exporter:9205']
+      - targets: ['exporter-nextcloud:9205']
 
   - job_name: 'node-exporter'
     metrics_path: '/metrics'
     scrape_interval: 5s
     scheme: http
     static_configs:
-      - targets: ["node_exporter:9100"]
+      - targets: ['exporter-node:9100']

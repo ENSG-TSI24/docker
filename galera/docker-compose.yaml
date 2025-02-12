@@ -12,7 +12,15 @@ volumes:
     driver: local
 
 networks:
-  galera_network:
+  network:
+    driver: overlay
+  grafana:
+    driver: overlay
+  node:
+    driver: overlay
+  nextcloud:
+    driver: overlay
+  cadvisor:
     driver: overlay
 
 secrets:
@@ -38,7 +46,7 @@ services:
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
       - NODE_ADDRESS=^10.0.*.*
     networks:
-      - galera_network
+      - network
     command: seed
     volumes:
       - mysql-data:/var/lib/mysql
@@ -53,7 +61,7 @@ services:
       - NODE_ADDRESS=^10.0.*.*
       - HEALTHY_WHILE_BOOTING=1
     networks:
-      - galera_network
+      - network
     command: node tasks.seed,tasks.node
     volumes:
       - mysql-data:/var/lib/mysql
@@ -70,7 +78,8 @@ services:
       - MYSQL_HOST=node
       - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud
     networks:
-      - galera_network
+      - network
+      - nextcloud
     volumes:
       - nextcloud_data:/var/www/html
     ports:
@@ -86,7 +95,10 @@ services:
     volumes:
       - ./prometheus_data:/prometheus_data
     networks:
-      - galera_network
+      - grafana
+      - node
+      - nextcloud
+      - cadvisor
     configs:
       - source: geco-prometheus
         target: /etc/prometheus/prometheus.yml
@@ -106,7 +118,7 @@ services:
     depends_on:
       - redis
     networks:
-      - galera_network
+      - cadvisor
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -117,10 +129,10 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
-      - galera_network
+      - grafana
     depends_on:
       - prometheus
-  exporter:
+  exporter-nextcloud:
     image: xperimental/nextcloud-exporter:latest
     environment:
       - NEXTCLOUD_SERVER=http://nextcloud:80
@@ -131,14 +143,15 @@ services:
     # volumes:
     #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
     networks:
-      - galera_network
+      - nextcloud
+      - network
     depends_on:
       - prometheus
-  node_exporter:
+  exporter-node:
     image: prom/node-exporter:latest
     ports:
       - "9100:9100"
     networks:
-      - galera_network
+      - node
     depends_on:
       - prometheus
