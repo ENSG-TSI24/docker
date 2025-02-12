@@ -20,6 +20,7 @@ services:
       - traefik_network
     labels:
       - "traefik.http.routers.nextcloud.rule=Host(`NC.ensg.duckdns.org.127.0.0.1.nip.io`)"
+      - "traefik.http.routers.nextcloud.tls.certresolver=myresolver"
 
   onlyoffice-document-server:
     image: onlyoffice/documentserver:latest
@@ -35,6 +36,7 @@ services:
       - traefik_network
     labels:
       - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg.duckdns.org.127.0.0.1.nip.io`)"
+      - "traefik.http.routers.onlyoffice-document-server.tls.certresolver=myresolver"
 
   seed:
     image: colinmollenhour/mariadb-galera-swarm

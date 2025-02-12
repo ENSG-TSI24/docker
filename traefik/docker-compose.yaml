@@ -12,12 +12,17 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.swarmmode=true"
       - "--providers.docker.watch"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=http"
+      - "--certificatesresolvers.myresolver.acme.email=tsic@ensg.eu"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "81:80"
       - "444:443"
       - "8082:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
     networks:
       - network
 
