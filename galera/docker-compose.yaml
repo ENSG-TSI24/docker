@@ -50,7 +50,7 @@ services:
       - mysql-data:/var/lib/mysql
 
     deploy:
-      replicas: 0
+      replicas: 1
     secrets:
       - xtrabackup_password
       - mysql_password
