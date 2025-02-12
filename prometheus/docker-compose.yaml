@@ -12,7 +12,7 @@ volumes:
     driver: local
 
 networks:
-  backend_network:
+  galera_backend_network:
     driver: overlay
     external: true
   grafana:
@@ -23,7 +23,9 @@ networks:
     driver: overlay
   cadvisor:
     driver: overlay
-
+  traefik_network:
+    external: true
+    
 configs:
   geco-prometheus:
     file: ./prometheus_data/prometheus.yml
@@ -64,6 +66,8 @@ services:
       - redis
     networks:
       - cadvisor
+
+
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -75,8 +79,14 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - grafana
+      - traefik_network
     depends_on:
       - prometheus
+    labels:
+      - "traefik.http.routers.grafana.rule=Host(`Grafana.ensg.duckdns.org.127.0.0.1.nip.io`)"
+      - traefik.http.services.<service_name>.loadbalancer.server.port=3000
+
+
   exporter-nextcloud:
     image: xperimental/nextcloud-exporter:latest
     environment:
@@ -89,9 +99,10 @@ services:
     #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
     networks:
       - nextcloud
-      - backend_network
+      - galera_backend_network
     depends_on:
       - prometheus
+
   exporter-node:
     image: prom/node-exporter:latest
     ports:
