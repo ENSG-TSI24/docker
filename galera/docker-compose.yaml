@@ -1,40 +1,5 @@
 version: '3.4'
 
-volumes:
-  mysql-data:
-    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
-    driver: local
-  nextcloud_data:
-    driver: local
-  prometheus_data:
-    driver: local
-  nextcloud_exporter_data:
-    driver: local
-
-networks:
-  network:
-    driver: overlay
-  grafana:
-    driver: overlay
-  node:
-    driver: overlay
-  nextcloud:
-    driver: overlay
-  cadvisor:
-    driver: overlay
-
-secrets:
-  xtrabackup_password:
-    file: .secrets/xtrabackup_password
-  mysql_password:
-    file: .secrets/mysql_password
-  mysql_root_password:
-    file: .secrets/mysql_root_password
-
-configs:
-  geco-prometheus:
-    file: ./prometheus_data/prometheus.yml
-
 services:
   nextcloud:
     container_name: app-server

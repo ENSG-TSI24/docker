@@ -1,0 +1,102 @@
+version: '3.4'
+
+volumes:
+  mysql-data:
+    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+    driver: local
+  nextcloud_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  nextcloud_exporter_data:
+    driver: local
+
+networks:
+  backend_network:
+    driver: overlay
+    external: true
+  grafana:
+    driver: overlay
+  node:
+    driver: overlay
+  nextcloud:
+    driver: overlay
+  cadvisor:
+    driver: overlay
+
+configs:
+  geco-prometheus:
+    file: ./prometheus_data/prometheus.yml
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus_data
+      - --storage.tsdb.retention.time=90d
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus_data:/prometheus_data
+    networks:
+      - grafana
+      - node
+      - nextcloud
+      - cadvisor
+    configs:
+      - source: geco-prometheus
+        target: /etc/prometheus/prometheus.yml
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  exporter-cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - 9092:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - redis
+    networks:
+      - cadvisor
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - grafana
+    depends_on:
+      - prometheus
+  exporter-nextcloud:
+    image: xperimental/nextcloud-exporter:latest
+    environment:
+      - NEXTCLOUD_SERVER=http://nextcloud:80
+      - NEXTCLOUD_AUTH_TOKEN=exporter_token
+      - NEXTCLOUD_LISTEN_ADDRESS=:9205
+    ports:
+      - 9205:9205
+    # volumes:
+    #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
+    networks:
+      - nextcloud
+      - backend_network
+    depends_on:
+      - prometheus
+  exporter-node:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    networks:
+      - node
+    depends_on:
+      - prometheus
