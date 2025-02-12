@@ -36,8 +36,5 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 5s
     scheme: http
-    basic_auth:
-      username: "admin"
-      password: "admin"
     static_configs:
       - targets: ['exporter:9205']

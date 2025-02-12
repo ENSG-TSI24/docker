@@ -68,6 +68,7 @@ services:
       - MYSQL_DATABASE=database
       - MYSQL_USER=user
       - MYSQL_HOST=node
+      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud
     networks:
       - galera_network
     volumes:
@@ -109,14 +110,13 @@ services:
   exporter:
     image: xperimental/nextcloud-exporter:latest
     environment:
-      - NEXTCLOUD_SERVER=http://nextcloud:80/ocs/v2.php/apps/serverinfo/api/v1/info
-      - NEXTCLOUD_USERNAME=admin
-      - NEXTCLOUD_PASSWORD=admin
+      - NEXTCLOUD_SERVER=http://nextcloud:80
+      - NEXTCLOUD_AUTH_TOKEN=exporter_token
       - NEXTCLOUD_LISTEN_ADDRESS=:9205
     ports:
       - 9205:9205
-    volumes:
-      - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
+    # volumes:
+    #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
     networks:
       - galera_network
     depends_on:
