@@ -38,3 +38,10 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets: ['exporter:9205']
+
+  - job_name: 'node-exporter'
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scheme: http
+    static_configs:
+      - targets: ["node_exporter:9100"]
