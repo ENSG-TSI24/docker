@@ -45,3 +45,8 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets: ['exporter-node:9100']
+    
+  - job_name: 'traefik-exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['traefik-reverse-proxy:81']

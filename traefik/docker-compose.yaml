@@ -3,7 +3,15 @@ version: '3.4'
 services:
   reverse-proxy:
     image: traefik:v3.3
-    command: --api.insecure=true --providers.docker --providers.swarm.network=traefik_network
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.swarm.network=traefik_network"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmmode=true"
+      - "--providers.docker.watch"
     ports:
       - "81:80"
       - "444:443"

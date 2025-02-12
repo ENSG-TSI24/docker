@@ -1,4 +1,5 @@
 prometheus/prometheus_data/*
 !prometheus/prometheus_data/prometheus.yml
 prometheus/grafana_data/*
-prometheus/grafana_data/*
+!prometheus/grafana_data/dashboards
+galera/.secrets

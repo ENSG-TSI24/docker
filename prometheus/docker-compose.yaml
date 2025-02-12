@@ -23,6 +23,9 @@ networks:
     driver: overlay
   cadvisor:
     driver: overlay
+  traefik_network:
+    driver: overlay
+    external: true
 
 configs:
   geco-prometheus:
@@ -44,6 +47,7 @@ services:
       - node
       - nextcloud
       - cadvisor
+      - traefik_exporter
     configs:
       - source: geco-prometheus
         target: /etc/prometheus/prometheus.yml
@@ -70,9 +74,12 @@ services:
       - 3000:3000
     volumes:
       - ./grafana_data:/var/lib/grafana
+      - ./grafana_data/dashboards:/etc/grafana/provisioning/dashboards
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_JSON_ENABLED=true
+      - GF_DASHBOARDS_JSON_PATH=/etc/grafana/provisioning/dashboards
     networks:
       - grafana
     depends_on:
