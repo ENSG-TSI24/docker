@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  reverse-proxy:
+    image: traefik:v3.3
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "81:80"
+      - "8043:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_network
+
+networks:
+  traefik_network:
+    name: traefik_network
