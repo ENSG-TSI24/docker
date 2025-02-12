@@ -49,8 +49,6 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-    deploy:
-      replicas: 1
     secrets:
       - xtrabackup_password
       - mysql_password
@@ -68,7 +66,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     deploy:
-      replicas: 3
+      replicas: 1
     secrets:
       - xtrabackup_password
 
