@@ -46,7 +46,7 @@ cat config.php
 retourner dans la racine:
 cd ..
 puis avec les bon paramètres
-./occ config:system:set trusted_domains 2 --value=localhost:8082
+./occ config:system:set trusted_domains 2 --value=localhost
 
 
 

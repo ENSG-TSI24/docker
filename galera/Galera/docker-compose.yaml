@@ -1,10 +1,8 @@
-version: '3.4'
-
 services:
   seed:
     image: colinmollenhour/mariadb-galera-swarm
     deploy:
-      replicas: 0
+      replicas: 1
     environment:
       - XTRABACKUP_PASSWORD_FILE=/run/secrets/xtrabackup_password
       - MYSQL_USER=user
@@ -41,7 +39,7 @@ services:
 
 volumes:
   mysql-data:
-    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+    name: "{{.Service.Name}}-{{.Task.Slot}}-data"
     driver: local
 
 networks:

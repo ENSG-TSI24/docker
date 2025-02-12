@@ -1,10 +1,6 @@
-version: '3.4'
-
 services:
   onlyoffice-document-server:
-    container_name: onlyoffice-document-server
-    image: onlyoffice/documentserver:latest
-    restart: always
+    image: onlyoffice/documentserver:8.3.0
     environment:
       - JWT_SECRET=secret
     ports:
@@ -18,7 +14,6 @@ services:
 volumes:
   document_data:
   document_log:
-
 
 networks:
   frontend_network:

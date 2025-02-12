@@ -1,12 +1,8 @@
-version: '3.4'
-
 services:
   nextcloud:
-    container_name: app-server
     image: nextcloud
-    restart: always
     ports:
-      - "8080:80"
+      - "8082:80"
     volumes:
       - nextcloud_data:/var/www/html
     environment:
@@ -17,15 +13,15 @@ services:
       - MYSQL_USER=user
       - MYSQL_HOST=node
     networks:
-      - frontend_network
-      - backend_network
+      - onlyoffice_frontend_network
+      - galera_backend_network
 
 volumes:
   nextcloud_data:
     driver: local
 
 networks:
-  frontend_network:
+  onlyoffice_frontend_network:
     external: true
-  backend_network:
+  galera_backend_network:
     external: true
