@@ -2,9 +2,7 @@ version: '3.4'
 
 services:
   nextcloud:
-    container_name: app-server
     image: nextcloud
-    restart: always
     ports:
       - "8080:80"
     volumes:
@@ -24,9 +22,7 @@ services:
       - "traefik.http.routers.nextcloud.rule=Host(`NC.ensg.duckdns.org.127.0.0.1.nip.io`)"
 
   onlyoffice-document-server:
-    container_name: onlyoffice-document-server
     image: onlyoffice/documentserver:latest
-    restart: always
     environment:
       - JWT_SECRET=secret
     ports:
@@ -102,7 +98,3 @@ secrets:
     file: .secrets/mysql_password
   mysql_root_password:
     file: .secrets/mysql_root_password
-
-configs:
-  geco-prometheus:
-    file: ./prometheus_data/prometheus.yml

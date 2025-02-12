@@ -46,7 +46,7 @@ services:
       - node
       - nextcloud
       - cadvisor
-      - traefik_exporter
+      - traefik_network
     configs:
       - source: geco-prometheus
         target: /etc/prometheus/prometheus.yml
