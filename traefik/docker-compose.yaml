@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   reverse-proxy:
-    image: traefik:v3.3
+    image: traefik:latest
     command:
       - "--api.insecure=true"
       - "--providers.docker"
@@ -25,6 +25,5 @@ services:
       - ./letsencrypt:/letsencrypt
     networks:
       - network
-
 networks:
   network:
