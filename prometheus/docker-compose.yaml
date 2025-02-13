@@ -32,6 +32,7 @@ configs:
 
 services:
   prometheus:
+    user: root
     image: prom/prometheus:latest
     command:
       - --config.file=/etc/prometheus/prometheus.yml
