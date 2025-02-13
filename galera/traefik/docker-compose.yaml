@@ -26,6 +26,9 @@ services:
     networks:
       - network
     deploy:
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - "traefik.docker.network=traefik_network"
         - "traefik.enable=true"
@@ -37,4 +40,4 @@ networks:
 
 volumes:
   letsencrypt:
-    driver: local
+    driver: glusterfs
