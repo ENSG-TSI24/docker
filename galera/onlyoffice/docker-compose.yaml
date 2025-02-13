@@ -3,8 +3,6 @@ services:
     image: onlyoffice/documentserver:8.3.0
     environment:
       - JWT_SECRET=secret
-    ports:
-      - "8082:80"
     volumes:
       - document_data:/var/www/onlyoffice/Data
       - document_log:/var/log/onlyoffice
@@ -16,7 +14,7 @@ services:
         - "traefik.docker.network=traefik_network"
         - "traefik.enable=true"
         - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg2025.duckdns.org`)"
-        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=8082"
+        - "traefik.http.services.onlyoffice-document-server.loadbalancer.server.port=80"
 
 volumes:
   document_data:
