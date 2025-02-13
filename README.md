@@ -53,3 +53,4 @@ To remove the Galera stack:
 docker stack rm galera
 ```
 This will remove all services associated with the stack.
+
