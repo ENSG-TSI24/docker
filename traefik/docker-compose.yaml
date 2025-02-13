@@ -36,4 +36,4 @@ networks:
 
 volumes:
   letsencrypt:
-    driver: local
+    driver: glusterfs

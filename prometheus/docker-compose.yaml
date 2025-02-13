@@ -5,11 +5,11 @@ volumes:
     name: '{{.Service.Name}}-{{.Task.Slot}}-data'
     driver: local
   nextcloud_data:
-    driver: local
+    driver: glusterfs
   prometheus_data:
-    driver: local
+    driver: glusterfs
   nextcloud_exporter_data:
-    driver: local
+    driver: glusterfs
 
 networks:
   galera_backend_network:
@@ -37,8 +37,6 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus_data
       - --storage.tsdb.retention.time=90d
-    ports:
-      - 9090:9090
     volumes:
       - ./prometheus_data:/prometheus_data
     networks:
@@ -56,8 +54,6 @@ services:
           - node.role == manager
   exporter-cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    ports:
-      - 9092:8080
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -70,8 +66,6 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    ports:
-      - 3000:3000
     volumes:
       - ./grafana_data:/var/lib/grafana
       - ./grafana_data/dashboards:/etc/grafana/provisioning/dashboards
@@ -85,9 +79,11 @@ services:
       - traefik_network
     depends_on:
       - prometheus
-    labels:
-      - "traefik.http.routers.grafana.rule=Host(`Grafana.ensg.duckdns.org.127.0.0.1.nip.io`)"
-      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+    deploy:
+      labels:
+        - "traefik.http.routers.grafana.rule=Host(`Grafana.ensg.duckdns.org`)"
+        - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   exporter-nextcloud:
     image: xperimental/nextcloud-exporter:latest
@@ -95,8 +91,6 @@ services:
       - NEXTCLOUD_SERVER=http://nextcloud:80
       - NEXTCLOUD_AUTH_TOKEN=exporter_token
       - NEXTCLOUD_LISTEN_ADDRESS=:9205
-    ports:
-      - 9205:9205
     # volumes:
     #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
     networks:
@@ -107,8 +101,6 @@ services:
 
   exporter-node:
     image: prom/node-exporter:latest
-    ports:
-      - "9100:9100"
     networks:
       - node
     depends_on:
