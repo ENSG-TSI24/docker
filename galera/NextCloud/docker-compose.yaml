@@ -2,7 +2,7 @@ services:
   nextcloud:
     image: nextcloud
     ports:
-      - "8084:80"
+      - "8081:80"
     volumes:
       - nextcloud_data:/var/www/html
     environment:
@@ -20,9 +20,8 @@ services:
       labels:
         - "traefik.docker.network=traefik_network"
         - "traefik.enable=true"
-        - "traefik.http.routers.nextcloud.rule=Host(`NC.ensg.duckdns.org.127.0.0.1.nip.io`)"
-        - "traefik.http.routers.nextcloud.tls.certresolver=myresolver"
-
+        - "traefik.http.routers.nextcloud.rule=Host(`NC.ensg2025.duckdns.org`)"
+        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=8081"
 volumes:
   nextcloud_data:
     driver: local

@@ -4,7 +4,7 @@ services:
     environment:
       - JWT_SECRET=secret
     ports:
-      - "8081:80"
+      - "8082:80"
     volumes:
       - document_data:/var/www/onlyoffice/Data
       - document_log:/var/log/onlyoffice
@@ -15,8 +15,8 @@ services:
       labels:
         - "traefik.docker.network=traefik_network"
         - "traefik.enable=true"
-        - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg.duckdns.org.127.0.0.1.nip.io`)"
-        - "traefik.http.routers.onlyoffice-document-server.tls.certresolver=myresolver"
+        - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg2025.duckdns.org`)"
+        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=8082"
 
 volumes:
   document_data:
