@@ -18,7 +18,9 @@ services:
 
 volumes:
   document_data:
+    driver: glusterfs
   document_log:
+    driver: glusterfs
 
 networks:
   frontend_network:
