@@ -1,0 +1,12 @@
+version: "3.6"
+services:
+  clamav:
+    image: "clamav/clamav:stable_base"
+    container_name: "clamav"
+    restart: unless-stopped
+    networks:
+      - nextcloud_default
+
+networks:
+  nextcloud_default:
+    external: true
