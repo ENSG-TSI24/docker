@@ -1,0 +1,37 @@
+version: "3.4"
+
+services:
+  reverse-proxy:
+    image: traefik:latest
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.swarm.network=traefik_network"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=http"
+      - "--certificatesresolvers.myresolver.acme.email=tsic@ensg.eu"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "81:80"
+      - "444:443"
+      - "8082:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - letsencrypt:/letsencrypt
+    networks:
+      - network
+    deploy:
+      labels:
+        - "traefik.docker.network=traefik_network"
+        - "traefik.enable=true"
+        - "traefik.http.routers.reverse-proxy.rule=Host(`Traefik.127.0.0.1.nip.io`)"
+        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=8082"
+
+networks:
+  network:
+
+volumes:
+  letsencrypt:
+    driver: local

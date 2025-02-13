@@ -10,6 +10,13 @@ services:
       - document_log:/var/log/onlyoffice
     networks:
       - frontend_network
+      - traefik_network
+    deploy:
+      labels:
+        - "traefik.docker.network=traefik_network"
+        - "traefik.enable=true"
+        - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg.duckdns.org.127.0.0.1.nip.io`)"
+        - "traefik.http.routers.onlyoffice-document-server.tls.certresolver=myresolver"
 
 volumes:
   document_data:
@@ -18,3 +25,5 @@ volumes:
 networks:
   frontend_network:
     driver: overlay
+  traefik_network:
+    external: true
