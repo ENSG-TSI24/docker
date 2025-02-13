@@ -25,7 +25,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.reverse-proxy.rule=Host(`Traefik.ensg.duckdns.org`)"
+        - "traefik.http.routers.reverse-proxy.rule=Host(`Traefik.ensg2025.duckdns.org`)"
         - "traefik.http.services.reverse-proxy.loadbalancer.server.port=8082"
         - "traefik.http.routers.reverse-proxy.tls.certresolver=myresolver"
 networks:
