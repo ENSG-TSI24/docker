@@ -1,0 +1,107 @@
+version: '3.4'
+
+volumes:
+  mysql-data:
+    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+    driver: local
+  nextcloud_data:
+    driver: glusterfs
+  prometheus_data:
+    driver: glusterfs
+  nextcloud_exporter_data:
+    driver: glusterfs
+
+networks:
+  galera_backend_network:
+    driver: overlay
+    external: true
+  grafana:
+    driver: overlay
+  node:
+    driver: overlay
+  nextcloud:
+    driver: overlay
+  cadvisor:
+    driver: overlay
+  traefik_network:
+    external: true
+
+configs:
+  geco-prometheus:
+    file: ./prometheus_data/prometheus.yml
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus_data
+      - --storage.tsdb.retention.time=90d
+    volumes:
+      - ./prometheus_data:/prometheus_data
+    networks:
+      - grafana
+      - node
+      - nextcloud
+      - cadvisor
+      - traefik_network
+    configs:
+      - source: geco-prometheus
+        target: /etc/prometheus/prometheus.yml
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  exporter-cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - redis
+    networks:
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+      - ./grafana_data/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_JSON_ENABLED=true
+      - GF_DASHBOARDS_JSON_PATH=/etc/grafana/provisioning/dashboards
+    networks:
+      - grafana
+      - traefik_network
+    depends_on:
+      - prometheus
+    deploy:
+      labels:
+        - "traefik.http.routers.grafana.rule=Host(`Grafana.ensg.duckdns.org`)"
+        - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  exporter-nextcloud:
+    image: xperimental/nextcloud-exporter:latest
+    environment:
+      - NEXTCLOUD_SERVER=http://nextcloud:80
+      - NEXTCLOUD_AUTH_TOKEN=exporter_token
+      - NEXTCLOUD_LISTEN_ADDRESS=:9205
+    # volumes:
+    #   - ./exporteur/nextcloud_exporter_data/config.yml:/conf:ro
+    networks:
+      - nextcloud
+      - galera_backend_network
+    depends_on:
+      - prometheus
+
+  exporter-node:
+    image: prom/node-exporter:latest
+    networks:
+      - node
+    depends_on:
+      - prometheus

@@ -1,0 +1,30 @@
+services:
+  onlyoffice-document-server:
+    image: onlyoffice/documentserver:8.3.0
+    environment:
+      - JWT_SECRET=secret
+    volumes:
+      - document_data:/var/www/onlyoffice/Data
+      - document_log:/var/log/onlyoffice
+    networks:
+      - frontend_network
+      - traefik_network
+    deploy:
+      labels:
+        - "traefik.docker.network=traefik_network"
+        - "traefik.enable=true"
+        - "traefik.http.routers.onlyoffice-document-server.rule=Host(`nc.ensg2025.duckdns.org`) && PathPrefix(`/ds-vpath`)"
+        - "traefik.http.services.onlyoffice-document-server.loadbalancer.server.port=80"
+        - "traefik.http.middlewares.oo-stripprefix.stripprefix.prefixes=/ds-vpath"
+
+volumes:
+  document_data:
+    driver: glusterfs
+  document_log:
+    driver: glusterfs
+
+networks:
+  frontend_network:
+    driver: overlay
+  traefik_network:
+    external: true

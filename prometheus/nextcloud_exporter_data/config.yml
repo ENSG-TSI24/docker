@@ -1,0 +1,6 @@
+server: "http://nextcloud"
+username: "admin"
+password: "admin"
+listenAddress: ":9205"
+timeout: "5s"
+tlsSkipVerify: false
