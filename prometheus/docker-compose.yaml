@@ -67,6 +67,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
+    user: root
     volumes:
       - ./grafana_data:/var/lib/grafana
       - ./grafana_data/dashboards:/etc/grafana/provisioning/dashboards
