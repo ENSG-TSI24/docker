@@ -49,4 +49,4 @@ scrape_configs:
   - job_name: 'traefik'
     scrape_interval: 5s
     static_configs:
-      - targets: ['traefik_reverse-proxy:8080']
+      - targets: ['traefik_reverse-proxy:80']
