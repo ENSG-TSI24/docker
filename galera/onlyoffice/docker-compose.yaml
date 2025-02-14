@@ -13,7 +13,7 @@ services:
       labels:
         - "traefik.docker.network=traefik_network"
         - "traefik.enable=true"
-        - "traefik.http.routers.onlyoffice-document-server.rule=Host(`OO.ensg2025.duckdns.org`) && PathPrefix(`/ds-vpath`)"
+        - "traefik.http.routers.onlyoffice-document-server.rule=Host(`nc.ensg2025.duckdns.org`) && PathPrefix(`/ds-vpath`)"
         - "traefik.http.services.onlyoffice-document-server.loadbalancer.server.port=80"
         - "traefik.http.middlewares.oo-stripprefix.stripprefix.prefixes=/ds-vpath"
 
