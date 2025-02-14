@@ -83,8 +83,8 @@ services:
       - prometheus
     deploy:
       labels:
-        - "traefik.http.routers.grafana.rule=Host(`Grafana.ensg.duckdns.org`)"
-        - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+        - "traefik.http.routers.grafana.rule=Host(`Grafana.ensg2025.duckdns.org`)"
+        #- "traefik.http.routers.grafana.tls.certresolver=myresolver"
         - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   exporter-nextcloud:
